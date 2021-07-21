@@ -1,5 +1,6 @@
 package webclient;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
@@ -77,13 +78,19 @@ public class WebClientRunner implements CommandLineRunner {
         return rocketUsers;
     }
 
-    private Response auth(WebClient client) {
+    private Response auth(WebClient client) throws IOException {
         client.replacePath("api/v1/login");
 
         Form form = new Form("user", "admin")
                 .param("password", "projectRSIAM2015");
 
-        return client.post(form);
+        Response response = client.post(form);
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree((InputStream) response.getEntity());
+        String userId = node.get("data").get("userId").textValue();
+
+        return response;
     }
 
     private void saveResultToFile(Response response, String path) throws IOException {

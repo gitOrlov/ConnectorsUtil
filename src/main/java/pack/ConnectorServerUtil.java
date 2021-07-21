@@ -1,26 +1,14 @@
 package pack;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.*;
-import org.identityconnectors.framework.common.objects.OperationOptions;
-import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
-import org.identityconnectors.framework.common.objects.Schema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.identityconnectors.framework.common.objects.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import pack.connection.ConnectorInfoManagerService;
 import pack.info.ConnectorInfoService;
-
-import javax.ws.rs.core.Response;
-import java.io.FileNotFoundException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static java.util.Objects.isNull;
 
@@ -32,22 +20,19 @@ public class ConnectorServerUtil implements CommandLineRunner {
     @Autowired
     ConnectorInfoService connectorInfoService;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConnectorServerUtil.class);
-
     public static void main(String[] args) {
         SpringApplication.run(ConnectorServerUtil.class, args);
     }
 
     @Override
-    public void run(String... args) throws JsonProcessingException {
+    public void run(String... args) {
         ConnectorInfoManager connectorInfoManager = connectorInfoManagerService.getConnectorInfoManager();
         if (isNull(connectorInfoManager)) return;
 
         workWithRestConnector(connectorInfoManager);
-
     }
 
-    private void workWithRestConnector(ConnectorInfoManager connectorInfoManager) throws JsonProcessingException {
+    private void workWithRestConnector(ConnectorInfoManager connectorInfoManager) {
         String restConnectorBundleName = "net.tirasa.connid.bundles.rest";
         String restConnectorBundleVersion = "1.0.6-SNAPSHOT";
         String restConnectorName = "net.tirasa.connid.bundles.rest.RESTConnector";
@@ -64,6 +49,8 @@ public class ConnectorServerUtil implements CommandLineRunner {
 
         connectorFacade.validate();
         Schema schema = connectorFacade.schema();
+
+        Uid uid = connectorFacade.authenticate(ObjectClass.ACCOUNT, "admin", new GuardedString("projectRSIAM2015".toCharArray()), operationOptions);
 
 //        connectorFacade.test();
 
@@ -85,18 +72,18 @@ public class ConnectorServerUtil implements CommandLineRunner {
         restConnectorProperties.setPropertyValue("baseAddress", "http://10.0.14.54:3000");
         restConnectorProperties.setPropertyValue("reloadScriptOnExecution", true);
 
-        restConnectorProperties.setPropertyValue("contentType", "application/x-www-form-urlencoded");
-
-        restConnectorProperties.setPropertyValue("username", "admin");
-        restConnectorProperties.setPropertyValue("password", new GuardedString("projectRSIAM2015".toCharArray()));
-
         restConnectorProperties.setPropertyValue("cliendId", "ANrfMv9N4B7dHJGcg");
         restConnectorProperties.setPropertyValue("clientSecret", "bHHWk3ENXZOkkAlmJUR2fNPv9Qj81qRLZfz4yGdyT48");
 
         restConnectorProperties.setPropertyValue("schemaScriptFileName", path + "SchemaScript.groovy");
         restConnectorProperties.setPropertyValue("authenticateScriptFileName", path + "AuthenticateScript.groovy");
-        restConnectorProperties.setPropertyValue("searchScriptFileName", path + "SearchScript.groovy");
-        restConnectorProperties.setPropertyValue("testScriptFileName", path + "TestScript.groovy");
+
+//        restConnectorProperties.setPropertyValue("contentType", "application/x-www-form-urlencoded");// установка этого поля почему то не влияет на WebClient, нужно ставить в скрипте
+//        restConnectorProperties.setPropertyValue("username", "admin");
+//        restConnectorProperties.setPropertyValue("password", new GuardedString("projectRSIAM2015".toCharArray()));
+
+//        restConnectorProperties.setPropertyValue("searchScriptFileName", path + "SearchScript.groovy");
+//        restConnectorProperties.setPropertyValue("testScriptFileName", path + "TestScript.groovy");
 
 //        restConnectorProperties.setPropertyValue("schemaScript", "SchemaScript");
 //        restConnectorProperties.setPropertyValue("syncScriptFileName", "");

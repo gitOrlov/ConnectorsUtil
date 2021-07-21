@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import org.identityconnectors.common.security.GuardedString
+
 import org.identityconnectors.framework.common.objects.AttributeInfo
-import org.identityconnectors.framework.common.objects.AttributeInfo.Flags
 import org.identityconnectors.framework.common.objects.AttributeInfoBuilder
 import org.identityconnectors.framework.common.objects.ObjectClassInfo
 import org.identityconnectors.framework.common.objects.ObjectClassInfoBuilder
@@ -36,11 +35,18 @@ idAIB.setRequired(true);
 
 orgAttrsInfo = new HashSet<AttributeInfo>();
 orgAttrsInfo.add(idAIB.build());
-orgAttrsInfo.add(AttributeInfoBuilder.build("_id", String.class));
-orgAttrsInfo.add(AttributeInfoBuilder.build("username", String.class));
-orgAttrsInfo.add(AttributeInfoBuilder.build("status", String.class));
-orgAttrsInfo.add(AttributeInfoBuilder.build("name", String.class));
-orgAttrsInfo.add(AttributeInfoBuilder.build("outside", Boolean.class));
+orgAttrsInfo.add(AttributeInfoBuilder.build("_id", String.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("createdAt", String.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("username", String.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("emails", Map.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("type", String.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("status", String.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("active", Boolean.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("_updatedAt", Boolean.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("__rooms", Map.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("roles", Map.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("name", String.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("settings", Map.class))
 
 ObjectClassInfo oci = new ObjectClassInfoBuilder().setType("__ACCOUNT__").addAllAttributeInfo(orgAttrsInfo).build();
 builder.defineObjectClass(oci)

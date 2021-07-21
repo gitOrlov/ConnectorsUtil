@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
 import org.apache.cxf.jaxrs.client.WebClient
-import org.apache.cxf.jaxrs.ext.form.Form;
+
+import javax.ws.rs.core.Form
 
 // Parameters:
 // The connector sends us the following:
@@ -35,20 +37,24 @@ ObjectMapper mapper = new ObjectMapper();
 
 String key;
 
-switch (objectClass) {  
-case "__ACCOUNT__":
-  webClient.path("/users/authenticate").query("username", username).query("password", password);
+switch (objectClass) {
+    case "__ACCOUNT__":
+        webClient.replacePath("api/v1/login")
+        webClient.type("application/x-www-form-urlencoded")
 
-  response = webClient.post(new Form().set("a", aValue).set("b", bValue));
-  if (response.getStatus() == 200) {
-    ObjectNode node = mapper.readTree(response.getEntity());
-    return node.get("key").textValue();
-  } else {
-    throw new RuntimeException("Could not authenticate " + username);
-    response.getStatusCode();
-  }
-  break
+        Form form = new Form("user", username)
+                .param("password", password)
 
-default:
-  throw new RuntimeException();
+        response = webClient.post(form)
+
+        if (response.getStatus() == 200) {
+            JsonNode node = mapper.readTree((InputStream) response.getEntity())
+            return node.get("data").get("userId").textValue()
+        } else {
+            throw new RuntimeException("Could not authenticate, status code =  " + response.getStatusCode());
+        }
+        break
+
+    default:
+        throw new RuntimeException();
 }
