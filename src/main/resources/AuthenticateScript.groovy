@@ -51,7 +51,7 @@ switch (objectClass) {
             JsonNode node = mapper.readTree((InputStream) response.getEntity())
             return node.get("data").get("userId").textValue()
         } else {
-            throw new RuntimeException("Could not authenticate, status code =  " + response.getStatusCode());
+            throw new RuntimeException("Could not authenticate, status code =  " + response.getStatus());
         }
         break
 

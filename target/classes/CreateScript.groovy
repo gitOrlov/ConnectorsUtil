@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import net.tirasa.connid.bundles.rest.service.User
 import org.apache.cxf.jaxrs.client.WebClient
-import org.identityconnectors.framework.common.objects.Uid
+
+import javax.ws.rs.core.Form
 
 // Parameters:
 // The connector sends us the following:
@@ -32,31 +35,56 @@ import org.identityconnectors.framework.common.objects.Uid
 
 log.info("Entering " + action + " Script");
 
-WebClient webClient = client;
-ObjectMapper mapper = new ObjectMapper();
+WebClient webClient = client
+ObjectMapper mapper = new ObjectMapper()
 
 String key;
 
-switch (objectClass) {  
-case "__ACCOUNT__":
-  User user = new User();
-  user.setKey(UUID.randomUUID());
-  user.setUsername(id);
-  user.setPassword(password);
-  user.setFirstName(attributes.get("firstName").get(0));
-  user.setSurname(attributes.get("surname").get(0));
-  user.setEmail(attributes.get("email").get(0));
-  
-  String payload = mapper.writeValueAsString(user);
-  
-  webClient.path("/users");
-  webClient.post(payload);
-  
-  key = user.getKey().toString();
-  break
+switch (objectClass) {
+    case "__ACCOUNT__":
+        webClient.replacePath("api/v1/users.create")
+                .type("application/x-www-form-urlencoded")
+                .header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
+                .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
 
-default:
-  key = id;
+//        Form form = new Form()
+
+//        for (Attribute nextAttribute : attributes) {
+//            if (nextAttribute.getName().equals("name")) {
+//                Object name = nextAttribute.getValue().get(0)
+//                form.param("name", (String) name)
+//            }
+//            if (nextAttribute.getName().equals("email")) {
+//                Object email = nextAttribute.getValue().get(0)
+//                form.param("email", (String) email)
+//            }
+//            if (nextAttribute.getName().equals("password")) {
+//                Object password = nextAttribute.getValue().get(0)
+//                form.param("password", (String) "password")
+//            }
+//            if (nextAttribute.getName().equals("name")) {
+//                Object userName = nextAttribute.getValue().get(0)
+//                form.param("username", (String) userName)
+//            }
+//        }
+
+        Form form = new Form("name", "Pavell")
+                .param("email", "Pavell@mail.ru")
+                .param("password", "Pavell")
+                .param("username", "PavellPavell")
+
+        response = webClient.post(form)
+
+        if (response.getStatus() == 200) {
+            JsonNode node = mapper.readTree((InputStream) response.getEntity())
+            return node.get("user").get("_id").textValue()
+        } else {
+            throw new RuntimeException("Could not create! status code =  " + response.getStatus())
+        }
+        break
+
+    default:
+        throw new RuntimeException()
 }
 
-return key;
+return null

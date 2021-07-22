@@ -10,6 +10,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import pack.connection.ConnectorInfoManagerService;
 import pack.info.ConnectorInfoService;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static java.util.Objects.isNull;
 
 @SpringBootApplication
@@ -52,6 +55,8 @@ public class ConnectorServerUtil implements CommandLineRunner {
 
         Uid uid = connectorFacade.authenticate(ObjectClass.ACCOUNT, "admin", new GuardedString("projectRSIAM2015".toCharArray()), operationOptions);
 
+        Uid createUid = create(connectorFacade, operationOptions);
+
 //        connectorFacade.test();
 
 //        Uid userUid = connectorFacade.authenticate(ObjectClass.ACCOUNT, "admin", new GuardedString("projectRSIAM2015".toCharArray()), operationOptions);
@@ -61,9 +66,20 @@ public class ConnectorServerUtil implements CommandLineRunner {
 //        ConnectorObject user = connectorFacade.getObject(ObjectClass.ACCOUNT, getUid, operationOptions);
 //
 //        connectorFacade.sync();
-//        Uid createUid = connectorFacade.create(ObjectClass.ACCOUNT, attributes, operationOptions);
+
 //        Uid updateUid = connectorFacade.update(ObjectClass.ACCOUNT, uid, attrs, operationOptions);
 //        connectorFacade.delete(ObjectClass.ACCOUNT, uid, operationOptions);
+    }
+
+    private Uid create(ConnectorFacade connectorFacade, OperationOptions operationOptions) {
+        Set<Attribute> attributes = new HashSet<>();
+
+        attributes.add(AttributeBuilder.build("name", "Kirill"));
+        attributes.add(AttributeBuilder.build("email", "Kirill@mail.ru"));
+        attributes.add(AttributeBuilder.build("password", new GuardedString("Kirill".toCharArray())));
+        attributes.add(AttributeBuilder.build("username", "KirillKirill"));
+
+        return connectorFacade.create(ObjectClass.ACCOUNT, attributes, operationOptions);
     }
 
 
@@ -77,6 +93,7 @@ public class ConnectorServerUtil implements CommandLineRunner {
 
         restConnectorProperties.setPropertyValue("schemaScriptFileName", path + "SchemaScript.groovy");
         restConnectorProperties.setPropertyValue("authenticateScriptFileName", path + "AuthenticateScript.groovy");
+        restConnectorProperties.setPropertyValue("createScriptFileName", path + "CreateScript.groovy");
 
 //        restConnectorProperties.setPropertyValue("contentType", "application/x-www-form-urlencoded");// установка этого поля почему то не влияет на WebClient, нужно ставить в скрипте
 //        restConnectorProperties.setPropertyValue("username", "admin");
@@ -90,8 +107,7 @@ public class ConnectorServerUtil implements CommandLineRunner {
 //        restConnectorProperties.setPropertyValue("resolveUsernameScriptFileName", "");
 //        restConnectorProperties.setPropertyValue("deleteScriptFileName", "");
 //        restConnectorProperties.setPropertyValue("updateScriptFileName", "");
-//        restConnectorProperties.setPropertyValue("createScriptFileName", "");
-//
+
 //        restConnectorProperties.setPropertyValue("testScript", "");
 //        restConnectorProperties.setPropertyValue("syncScript", "");
 //        restConnectorProperties.setPropertyValue("resolveUsernameScript", "");
