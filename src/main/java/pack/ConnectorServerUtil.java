@@ -88,14 +88,17 @@ public class ConnectorServerUtil implements CommandLineRunner {
         restConnectorProperties.setPropertyValue("baseAddress", "http://10.0.14.54:3000");
         restConnectorProperties.setPropertyValue("reloadScriptOnExecution", true);
 
-        restConnectorProperties.setPropertyValue("cliendId", "ANrfMv9N4B7dHJGcg");
-        restConnectorProperties.setPropertyValue("clientSecret", "bHHWk3ENXZOkkAlmJUR2fNPv9Qj81qRLZfz4yGdyT48");
-
         restConnectorProperties.setPropertyValue("schemaScriptFileName", path + "SchemaScript.groovy");
         restConnectorProperties.setPropertyValue("authenticateScriptFileName", path + "AuthenticateScript.groovy");
         restConnectorProperties.setPropertyValue("createScriptFileName", path + "CreateScript.groovy");
+        restConnectorProperties.setPropertyValue("deleteScriptFileName", path + "DeleteScript.groovy");
 
-//        restConnectorProperties.setPropertyValue("contentType", "application/x-www-form-urlencoded");// установка этого поля почему то не влияет на WebClient, нужно ставить в скрипте
+//        restConnectorProperties.setPropertyValue("cliendId", "ANrfMv9N4B7dHJGcg"); // эти параметры вообще не передаются!
+//        restConnectorProperties.setPropertyValue("clientSecret", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ");
+
+//        restConnectorProperties.setPropertyValue("contentType", "application/x-www-form-urlencoded");// почему то устанавливает заголовок Accept!
+//        restConnectorProperties.setPropertyValue("accept", "application/x-www-form-urlencoded");// почему то устанавливает заголовок contentType!
+
 //        restConnectorProperties.setPropertyValue("username", "admin");
 //        restConnectorProperties.setPropertyValue("password", new GuardedString("projectRSIAM2015".toCharArray()));
 
@@ -105,7 +108,6 @@ public class ConnectorServerUtil implements CommandLineRunner {
 //        restConnectorProperties.setPropertyValue("schemaScript", "SchemaScript");
 //        restConnectorProperties.setPropertyValue("syncScriptFileName", "");
 //        restConnectorProperties.setPropertyValue("resolveUsernameScriptFileName", "");
-//        restConnectorProperties.setPropertyValue("deleteScriptFileName", "");
 //        restConnectorProperties.setPropertyValue("updateScriptFileName", "");
 
 //        restConnectorProperties.setPropertyValue("testScript", "");

@@ -15,6 +15,8 @@
  */
 import org.apache.cxf.jaxrs.client.WebClient
 
+import javax.ws.rs.core.Form
+
 // Parameters:
 // The connector sends the following:
 // client : CXF WebClient
@@ -30,12 +32,17 @@ WebClient webClient = client;
 
 assert uid != null
 
-switch ( objectClass ) {
-case "__ACCOUNT__":
-  webClient.path("/users/" + uid);
-  webClient.delete();
-  break
+switch (objectClass) {
+    case "__ACCOUNT__":
+        webClient.replacePath("/api/v1/users.delete")
+                .type("application/x-www-form-urlencoded")
+                .header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
+                .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
 
-default:
-  break
+        Form form = new Form("userId", uid)
+        webClient.post(form);
+        break
+
+    default:
+        break
 }

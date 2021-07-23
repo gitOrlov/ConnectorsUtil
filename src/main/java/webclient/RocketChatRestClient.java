@@ -1,16 +1,11 @@
 package webclient;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.identityconnectors.framework.common.objects.Uid;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -19,13 +14,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 @SpringBootApplication
@@ -45,6 +36,10 @@ public class RocketChatRestClient implements CommandLineRunner {
                 .header("X-User-Id", "ANrfMv9N4B7dHJGcg");
 
         ObjectMapper mapper = new ObjectMapper();
+
+        for (Map.Entry entry : client.getHeaders().entrySet()) {
+            System.out.println("Key=" + entry.getKey() + "   Value=" + entry.getValue());
+        }
 
         Response authResponse = auth(client);
         InputStream authInputStream = (InputStream) authResponse.getEntity();
