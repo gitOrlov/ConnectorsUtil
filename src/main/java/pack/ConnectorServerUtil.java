@@ -74,10 +74,10 @@ public class ConnectorServerUtil implements CommandLineRunner {
     private Uid create(ConnectorFacade connectorFacade, OperationOptions operationOptions) {
         Set<Attribute> attributes = new HashSet<>();
 
-        attributes.add(AttributeBuilder.build("name", "Kirill"));
-        attributes.add(AttributeBuilder.build("email", "Kirill@mail.ru"));
-        attributes.add(AttributeBuilder.build("password", new GuardedString("Kirill".toCharArray())));
-        attributes.add(AttributeBuilder.build("username", "KirillKirill"));
+        attributes.add(AttributeBuilder.build("name", "Vania"));
+        attributes.add(AttributeBuilder.build("email", "Vania@mail.ru"));
+        attributes.add(AttributeBuilder.build("password", "Vania"));
+        attributes.add(AttributeBuilder.build("username", "VaniaVania"));
 
         return connectorFacade.create(ObjectClass.ACCOUNT, attributes, operationOptions);
     }

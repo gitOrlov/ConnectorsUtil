@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.cxf.jaxrs.client.WebClient
@@ -34,8 +35,6 @@ log.info("Entering " + action + " Script");
 
 WebClient webClient = client;
 ObjectMapper mapper = new ObjectMapper();
-
-String key;
 
 switch (objectClass) {
     case "__ACCOUNT__":

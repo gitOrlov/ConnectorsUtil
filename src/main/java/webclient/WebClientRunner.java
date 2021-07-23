@@ -109,7 +109,7 @@ public class WebClientRunner implements CommandLineRunner {
         }
     }
 
-    private Response create(WebClient client) {
+    private Response create(WebClient client) throws IOException {
         client.replacePath("/api/v1/users.create");
 
         Form form = new Form("name", "Igor")
@@ -117,7 +117,13 @@ public class WebClientRunner implements CommandLineRunner {
                 .param("password", "Igor")
                 .param("username", "IgorIgor");
 
-        return client.form(form);
+        Response response = client.post(form);
+
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.readTree((InputStream) response.getEntity());
+        String userId = node.get("user").get("_id").textValue();
+
+        return response;
     }
 
     //Если после этого метода вызвать auth, то будет ошибка "No serializer found for class javax.ws.rs.core.Form" Problem with writing the data, class javax.ws.rs.core.Form, ContentType: application/json

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.cxf.jaxrs.client.WebClient
@@ -33,12 +32,10 @@ import javax.ws.rs.core.Form
 // password: password string, clear text
 // options: a handler to the OperationOptions Map
 
-log.info("Entering " + action + " Script");
+log.info("Entering " + action + " Script\n");
 
 WebClient webClient = client
 ObjectMapper mapper = new ObjectMapper()
-
-String key;
 
 switch (objectClass) {
     case "__ACCOUNT__":
@@ -47,39 +44,43 @@ switch (objectClass) {
                 .header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
                 .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
 
-//        Form form = new Form()
+        Form form = new Form()
 
-//        for (Attribute nextAttribute : attributes) {
-//            if (nextAttribute.getName().equals("name")) {
-//                Object name = nextAttribute.getValue().get(0)
-//                form.param("name", (String) name)
-//            }
-//            if (nextAttribute.getName().equals("email")) {
-//                Object email = nextAttribute.getValue().get(0)
-//                form.param("email", (String) email)
-//            }
-//            if (nextAttribute.getName().equals("password")) {
-//                Object password = nextAttribute.getValue().get(0)
-//                form.param("password", (String) "password")
-//            }
-//            if (nextAttribute.getName().equals("name")) {
-//                Object userName = nextAttribute.getValue().get(0)
-//                form.param("username", (String) userName)
-//            }
-//        }
+        Iterator it = attributes.entrySet().iterator()
+        while (it.hasNext()) {
+            Map.Entry me = (Map.Entry) it.next()
+            String entryKey = (String) me.getKey()
 
-        Form form = new Form("name", "Kirill")
-                .param("email", "Kirill@mail.ru")
-                .param("password", "Kirill")
-                .param("username", "KirillKirill")
+            String value = (String) me.getValue()
+            value = value.substring(1, value.length() - 1)
+
+            if (entryKey.equals("name")) {
+                form.param("name", value)
+                log.info("key=" + entryKey + " val=" + value)
+
+            } else if (entryKey.equals("email")) {
+                form.param("email", value)
+                log.info("key=" + entryKey + " val=" + value)
+
+            } else if (entryKey.equals("password")) {
+                form.param("password", value)
+                log.info("key=" + entryKey + " val=" + value)
+
+            } else if (entryKey.equals("username")) {
+                form.param("username", value)
+                log.info("key=" + entryKey + " val=" + value)
+            }
+        }
 
         response = webClient.post(form)
 
         if (response.getStatus() == 200) {
             JsonNode node = mapper.readTree((InputStream) response.getEntity())
             return node.get("user").get("_id").textValue()
+        } else if (response.getStatus() == 400) {
+            log.error("Perhaps a user with this name has already been created!\n")
         } else {
-            throw new RuntimeException("Could not create! status code =  " + response.getStatus())
+            throw new RuntimeException("Could not create! status code =  " + response.getStatus() + "\n")
         }
         break
 
