@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public class RocketUser implements Serializable {
+public class RocketChatUser implements Serializable {
     private String _id;
     private String createdAt;
     private List<Object> emails;
@@ -173,7 +173,7 @@ public class RocketUser implements Serializable {
                 '}';
     }
 
-    public RocketUser() {
+    public RocketChatUser() {
         super();
     }
 }

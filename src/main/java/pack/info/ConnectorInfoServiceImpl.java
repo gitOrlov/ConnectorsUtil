@@ -59,4 +59,46 @@ public class ConnectorInfoServiceImpl implements ConnectorInfoService {
             }
         }
     }
+
+    //    private void justMethod(String[] args, List<String> propertyNames, ConfigurationProperties properties) {
+//        String configurationFilePath = args[5];
+//        String resourceClass = args[6];
+//
+//        BaseConfiguration baseConfiguration = null;
+//
+//        try {
+//            ConfigurationServiceImpl cs = new ConfigurationServiceImpl(Paths.get(configurationFilePath).getParent().toString() + "/configuration_service.conf");
+//            baseConfiguration = cs.createConfigurationObject(resourceClass);
+//            cs.loadConfiguration(configurationFilePath, baseConfiguration);
+//        } catch (IOException | IllegalAccessException | InstantiationException | ClassNotFoundException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if (isNull(baseConfiguration))
+//            return;
+//
+//        BaseConfiguration connectorProperties = (BaseConfiguration) baseConfiguration.getProperty("properties");
+//
+//        for (String propertyName : propertyNames) {
+//            ConfigurationProperty property = properties.getProperty(propertyName);
+//            Object configParamValue = null;
+//
+//            try {
+//                if (property.getType() == GuardedString.class) {
+//                    String str = (String) connectorProperties.getProperty(propertyName);
+//                    configParamValue = new GuardedString(str.toCharArray());
+//                } else {
+//                    configParamValue = connectorProperties.getProperty(propertyName);
+//                }
+//            } catch (RuntimeException e) {
+//                System.out.println("Свойство: " + propertyName);
+//            }
+//
+//            if (configParamValue != null) {
+//                properties.setPropertyValue(propertyName, configParamValue);
+//            } else if (property.isRequired()) {
+//                throw new RuntimeException("Не задано свойство: " + propertyName);
+//            }
+//        }
+//    }
 }
