@@ -59,13 +59,12 @@ public class ConnectorServerUtil implements CommandLineRunner {
 
         connectorFacade.delete(ObjectClass.ACCOUNT, createUid, operationOptions);
 
+        ConnectorObject user = connectorFacade.getObject(ObjectClass.ACCOUNT, new Uid("jGPfuzGRTevZSp4Ce"), operationOptions);
+
 //        connectorFacade.test();
 
 //        SearchResult searchResult = connectorFacade.search(ObjectClass.ACCOUNT, filter, resultsHandler, operationOptions);
 
-//        Uid getUid = new Uid("jGPfuzGRTevZSp4Ce");
-//        ConnectorObject user = connectorFacade.getObject(ObjectClass.ACCOUNT, getUid, operationOptions);
-//
 //        connectorFacade.sync();
 
 //        Uid updateUid = connectorFacade.update(ObjectClass.ACCOUNT, uid, attrs, operationOptions);
@@ -92,6 +91,7 @@ public class ConnectorServerUtil implements CommandLineRunner {
         restConnectorProperties.setPropertyValue("authenticateScriptFileName", path + "AuthenticateScript.groovy");
         restConnectorProperties.setPropertyValue("createScriptFileName", path + "CreateScript.groovy");
         restConnectorProperties.setPropertyValue("deleteScriptFileName", path + "DeleteScript.groovy");
+        restConnectorProperties.setPropertyValue("searchScriptFileName", path + "SearchScript.groovy");
 
 //        restConnectorProperties.setPropertyValue("cliendId", "ANrfMv9N4B7dHJGcg"); // эти параметры вообще не передаются!
 //        restConnectorProperties.setPropertyValue("clientSecret", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ");
@@ -102,14 +102,12 @@ public class ConnectorServerUtil implements CommandLineRunner {
 //        restConnectorProperties.setPropertyValue("username", "admin");
 //        restConnectorProperties.setPropertyValue("password", new GuardedString("projectRSIAM2015".toCharArray()));
 
-//        restConnectorProperties.setPropertyValue("searchScriptFileName", path + "SearchScript.groovy");
 //        restConnectorProperties.setPropertyValue("testScriptFileName", path + "TestScript.groovy");
-
-//        restConnectorProperties.setPropertyValue("schemaScript", "SchemaScript");
 //        restConnectorProperties.setPropertyValue("syncScriptFileName", "");
 //        restConnectorProperties.setPropertyValue("resolveUsernameScriptFileName", "");
 //        restConnectorProperties.setPropertyValue("updateScriptFileName", "");
 
+//        restConnectorProperties.setPropertyValue("schemaScript", "SchemaScript");
 //        restConnectorProperties.setPropertyValue("testScript", "");
 //        restConnectorProperties.setPropertyValue("syncScript", "");
 //        restConnectorProperties.setPropertyValue("resolveUsernameScript", "");

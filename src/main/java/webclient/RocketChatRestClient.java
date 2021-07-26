@@ -44,6 +44,9 @@ public class RocketChatRestClient implements CommandLineRunner {
         Response authResponse = auth(client);
         InputStream authInputStream = (InputStream) authResponse.getEntity();
 
+        Response oneUserResponse = client.replacePath("/api/v1/users.info").query("userId", "jGPfuzGRTevZSp4Ce").get();
+        InputStream oneUserInputStream = (InputStream) oneUserResponse.getEntity();
+
         Response getAllUsersResponse = client.replacePath("/api/v1/users.list").get();
         InputStream allUsersInputStream = (InputStream) getAllUsersResponse.getEntity();
 
@@ -60,12 +63,14 @@ public class RocketChatRestClient implements CommandLineRunner {
         Uid authUid = inputStreamService.getUid(authInputStream, mapper, "data", "userId");
         Uid createUid = inputStreamService.getUid(createInputStream, mapper, "user", "_id");
         Uid updateUid = inputStreamService.getUid(updateInputStream, mapper, "user", "_id");
+        Uid oneUserUid = inputStreamService.getUid(oneUserInputStream, mapper, "user", "_id");
 
         inputStreamService.saveResultToFile(allUsersInputStream, "allUsers.json");
         inputStreamService.saveResultToFile(createInputStream, "create.json");
         inputStreamService.saveResultToFile(updateInputStream, "update.json");
         inputStreamService.saveResultToFile(deleteInputStream, "delete.json");
         inputStreamService.saveResultToFile(authInputStream, "auth.json");
+        inputStreamService.saveResultToFile(oneUserInputStream, "oneUser.json");
     }
 
     private Response auth(WebClient client) {
