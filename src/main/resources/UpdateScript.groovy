@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import net.tirasa.connid.bundles.rest.service.User
-import org.apache.cxf.jaxrs.client.WebClient
+import org.apache.commons.codec.digest.DigestUtils
+
+import javax.ws.rs.core.MediaType
 
 // Parameters:
 // The connector sends us the following:
@@ -44,58 +48,64 @@ import org.apache.cxf.jaxrs.client.WebClient
 
 log.info("Entering " + action + " Script");
 
-WebClient webClient = client;
-ObjectMapper mapper = new ObjectMapper();
+passHash = DigestUtils.sha256Hex("projectRSIAM2015")
+ObjectMapper mapper = new ObjectMapper()
+
+client.header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
+        .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
+        .header("X-2fa-code", passHash)
+        .header("X-2fa-method", "password")
+        .type(MediaType.APPLICATION_JSON_TYPE)
+        .replacePath("/api/v1/users.update")
 
 assert uid != null
 
 switch (action) {
-case "UPDATE":
-  switch (objectClass) {  
-  case "__ACCOUNT__":
-    User user = new User();
-    user.setKey(new UUID(uid.getBytes()));
-    if (attributes.containsKey("__NAME__")) {
-      user.setUsername(attributes.get("__NAME__").get(0));
-    }
-    if (attributes.containsKey("username")) {
-      user.setUsername(attributes.get("username").get(0));
-    }
-    if (password != null) {
-      user.setPassword(password);
-    }
-    if (attributes.containsKey("firstName")) {
-      user.setFirstName(attributes.get("firstName").get(0));
-    }
-    if (attributes.containsKey("surname")) {
-      user.setSurname(attributes.get("surname").get(0));
-    }
-    if (attributes.containsKey("email")) {
-      user.setEmail(attributes.get("email").get(0));
-    }
-    
-    String payload = mapper.writeValueAsString(user);
+    case "UPDATE":
+        switch (objectClass) {
+            case "__ACCOUNT__":
+                def dataMap = new HashMap();
 
-    // this if update works with PUT
-    webClient.path("users").path(uid);
-    webClient.put(payload);
-    
-    // this instead if update works with PATCH
-    //webClient.path("users").path(uid);
-    //WebClient.getConfig(webClient).getRequestContext().put("use.async.http.conduit", true);
-    //webClient.invoke("PATCH", payload);
+                Iterator it = attributes.entrySet().iterator()
+                while (it.hasNext()) {
+                    Map.Entry me = (Map.Entry) it.next()
+                    String entryKey = (String) me.getKey()
 
-  default:
-    break
-  }
+                    String value = (String) me.getValue()
+                    value = value.substring(1, value.length() - 1)
+                    log.info("key=" + entryKey + " val=" + value)
 
-  return uid;
-  break
+                    dataMap.put(entryKey, value)
+                }
 
-case "ADD_ATTRIBUTE_VALUES":
-  break
+                stringUid = uid.toString()
+                log.info("stringUid=" + stringUid)
+
+                def parentmap = [userId: stringUid, "data": dataMap]
+
+                String jsonResult = mapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(parentmap);
+
+                println "json= " + jsonResult
+                response = client.post(jsonResult)
+
+                if (response.getStatus() == 200) {
+                    JsonNode node = mapper.readTree((InputStream) response.getEntity())
+                    return node.get("user").get("_id").textValue()
+                } else if (response.getStatus() == 400) {
+                    log.error("Error when updating user with uid = " + stringUid)
+                }
+            default:
+                break
+        }
+
+        return uid;
+        break
+
+    case "ADD_ATTRIBUTE_VALUES":
+        break
 
 
-default:
-  break
+    default:
+        break
 }

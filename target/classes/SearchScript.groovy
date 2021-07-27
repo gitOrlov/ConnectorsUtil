@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ArrayNode
 import com.fasterxml.jackson.databind.node.ObjectNode
-import javax.ws.rs.core.Response
 import org.apache.cxf.jaxrs.client.WebClient
-import org.identityconnectors.common.security.GuardedString
+import org.apache.cxf.jaxrs.ext.search.ConditionType
+
+import javax.ws.rs.core.Response
 
 // Parameters:
 // The connector sends the following:
@@ -47,15 +50,20 @@ import org.identityconnectors.common.security.GuardedString
 // This is required to build a ConnectorObject.
 
 def buildConnectorObject(node) {
-  return [
-    __UID__:node.get("key").textValue(), 
-    __NAME__:node.get("key").textValue(),
-    _id:node.get("_id").textValue(),
-    username:node.get("password").textValue(),
-    status:node.get("status").textValue(),
-    name:node.get("name").textValue(),
-    outside:new Boolean(node.get("outside").textValue())
-  ];
+    return [
+            __UID__         : node.get("_id").textValue(),
+            __NAME__        : node.get("_id").textValue(),
+            _id             : node.get("_id").textValue(),
+            createdAt       : node.get("createdAt").textValue(),
+            username        : node.get("username").textValue(),
+            status          : node.get("status").textValue(),
+            type            : node.get("type").textValue(),
+            name            : node.get("name").textValue(),
+            active          : node.get("active").booleanValue(),
+            lastLogin       : node.get("lastLogin").textValue(),
+            statusConnection: node.get("statusConnection").textValue(),
+            utcOffset       : node.get("utcOffset").intValue()
+    ];
 }
 
 log.info("Entering " + action + " Script");
@@ -66,33 +74,59 @@ webClient.getCurrentURI()
 
 def result = []
 
+
+webClient.header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
+        .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
+
 switch (objectClass) {
-case "__ACCOUNT__":
-  if (query == null || (!query.get("left").equals("__UID__") && !query.get("conditionType").equals("EQUALS"))) {
-    webClient.path("/users");
-    Response response = webClient.get();
-    ArrayNode node = mapper.readTree(response.getEntity());
+    case "__ACCOUNT__":
+        log.info("query toString=" + query.toString())
 
-    println node;
-    for (i = 0; i < node.size(); i++) {
-      result.add(buildConnectorObject(node.get(i)));
-    }
-  } else {
-    webClient.path("/users/" + query.get("right"));
-    Response response = webClient.get();
-    if (response.getStatus() == 200) {
-      ObjectNode node = mapper.readTree(response.getEntity());
-      println node;
-      result.add(buildConnectorObject(node));
-    } else {
-      log.warn("Could not read object {0}", query.get("right"));
-    }
-  }
+        //Пока что здесь получение только одного пользотвателя, надо в зависимости от параметров запроса сделать получение или одного или всех пользователей
+        if (query.get("left").equals("__UID__") && query.get("conditionType").equals(ConditionType.EQUALS)) {
+            webClient.replacePath("/api/v1/users.info")
 
-  break
+            String right = (String) query.get("right")
+            log.info("right=" + right)
 
-default:
-  result;
+            Response oneUserResponse = webClient.query("userId", right).get()
+
+            log.info("Response code=" + oneUserResponse.getStatus())
+
+            if (oneUserResponse.getStatus() == 200) {
+                JsonNode jsonNode = mapper.readTree((InputStream) oneUserResponse.getEntity())
+                ObjectNode objectNode = jsonNode.get("user")
+                result.add(buildConnectorObject(objectNode))
+            }
+        } else {
+            log.info("ELSE!")
+        }
+
+//  if (query == null || (!query.get("left").equals("__UID__") && !query.get("conditionType").equals("EQUALS"))) {
+//    webClient.path("/users");
+//    Response response = webClient.get();
+//    ArrayNode node = mapper.readTree(response.getEntity());
+//
+//    println node;
+//    for (i = 0; i < node.size(); i++) {
+//      result.add(buildConnectorObject(node.get(i)));
+//    }
+//  } else {
+//    webClient.path("/users/" + query.get("right"));
+//    Response response = webClient.get();
+//    if (response.getStatus() == 200) {
+//      ObjectNode node = mapper.readTree(response.getEntity());
+//      println node;
+//      result.add(buildConnectorObject(node));
+//    } else {
+//      log.warn("Could not read object {0}", query.get("right"));
+//    }
+//  }
+
+        break
+
+    default:
+        result;
 }
 
 return result;

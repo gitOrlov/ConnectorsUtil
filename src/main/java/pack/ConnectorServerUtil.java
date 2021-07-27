@@ -57,6 +57,8 @@ public class ConnectorServerUtil implements CommandLineRunner {
 
         Uid createUid = create(connectorFacade, operationOptions);
 
+        Uid updateUid = update(connectorFacade, createUid, operationOptions);
+
         connectorFacade.delete(ObjectClass.ACCOUNT, createUid, operationOptions);
 
         ConnectorObject user = connectorFacade.getObject(ObjectClass.ACCOUNT, new Uid("jGPfuzGRTevZSp4Ce"), operationOptions);
@@ -66,9 +68,6 @@ public class ConnectorServerUtil implements CommandLineRunner {
 //        SearchResult searchResult = connectorFacade.search(ObjectClass.ACCOUNT, filter, resultsHandler, operationOptions);
 
 //        connectorFacade.sync();
-
-//        Uid updateUid = connectorFacade.update(ObjectClass.ACCOUNT, uid, attrs, operationOptions);
-//        connectorFacade.delete(ObjectClass.ACCOUNT, uid, operationOptions);
     }
 
     private Uid create(ConnectorFacade connectorFacade, OperationOptions operationOptions) {
@@ -82,6 +81,13 @@ public class ConnectorServerUtil implements CommandLineRunner {
         return connectorFacade.create(ObjectClass.ACCOUNT, attributes, operationOptions);
     }
 
+    private Uid update(ConnectorFacade connectorFacade, Uid uid, OperationOptions operationOptions) {
+        Set<Attribute> attributes = new HashSet<>();
+        attributes.add(AttributeBuilder.build("name", "Ivan"));
+
+        return connectorFacade.update(ObjectClass.ACCOUNT, uid, attributes, operationOptions);
+    }
+
     void setConnectorProperties(ConfigurationProperties restConnectorProperties) {
         String path = "/opt/connid-connector-server/scripts/";
         restConnectorProperties.setPropertyValue("baseAddress", "http://10.0.14.54:3000");
@@ -92,6 +98,7 @@ public class ConnectorServerUtil implements CommandLineRunner {
         restConnectorProperties.setPropertyValue("createScriptFileName", path + "CreateScript.groovy");
         restConnectorProperties.setPropertyValue("deleteScriptFileName", path + "DeleteScript.groovy");
         restConnectorProperties.setPropertyValue("searchScriptFileName", path + "SearchScript.groovy");
+        restConnectorProperties.setPropertyValue("updateScriptFileName", path + "UpdateScript.groovy");
 
 //        restConnectorProperties.setPropertyValue("cliendId", "ANrfMv9N4B7dHJGcg"); // эти параметры вообще не передаются!
 //        restConnectorProperties.setPropertyValue("clientSecret", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ");
@@ -105,7 +112,6 @@ public class ConnectorServerUtil implements CommandLineRunner {
 //        restConnectorProperties.setPropertyValue("testScriptFileName", path + "TestScript.groovy");
 //        restConnectorProperties.setPropertyValue("syncScriptFileName", "");
 //        restConnectorProperties.setPropertyValue("resolveUsernameScriptFileName", "");
-//        restConnectorProperties.setPropertyValue("updateScriptFileName", "");
 
 //        restConnectorProperties.setPropertyValue("schemaScript", "SchemaScript");
 //        restConnectorProperties.setPropertyValue("testScript", "");

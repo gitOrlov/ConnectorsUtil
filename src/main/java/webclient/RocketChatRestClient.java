@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,7 +14,7 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
 
@@ -31,7 +30,7 @@ public class RocketChatRestClient implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        WebClient client = WebClient.create("http://10.0.14.54:3000", Collections.singletonList(new JacksonJaxbJsonProvider()))
+        WebClient client = WebClient.create("http://10.0.14.54:3000")
                 .header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
                 .header("X-User-Id", "ANrfMv9N4B7dHJGcg");
 
@@ -44,7 +43,7 @@ public class RocketChatRestClient implements CommandLineRunner {
         Response authResponse = auth(client);
         InputStream authInputStream = (InputStream) authResponse.getEntity();
 
-        Response oneUserResponse = client.replacePath("/api/v1/users.info").query("userId", "jGPfuzGRTevZSp4Ce").get();
+        Response oneUserResponse = client.replacePath("/api/v1/users.info").query("userId", "jGPfuzGRTevZSp4Ce").get();//Адриан
         InputStream oneUserInputStream = (InputStream) oneUserResponse.getEntity();
 
         Response getAllUsersResponse = client.replacePath("/api/v1/users.list").get();
@@ -56,14 +55,14 @@ public class RocketChatRestClient implements CommandLineRunner {
         Response updateResponse = update(client, mapper);
         InputStream updateInputStream = (InputStream) updateResponse.getEntity();
 
-        Response deleteResponse = delete(client, mapper);
+        Response deleteResponse = delete(client);
         InputStream deleteInputStream = (InputStream) deleteResponse.getEntity();
 
-        ArrayList<RocketChatUser> allUsers = inputStreamService.getListOfUsers(allUsersInputStream, mapper);
-        Uid authUid = inputStreamService.getUid(authInputStream, mapper, "data", "userId");
-        Uid createUid = inputStreamService.getUid(createInputStream, mapper, "user", "_id");
-        Uid updateUid = inputStreamService.getUid(updateInputStream, mapper, "user", "_id");
-        Uid oneUserUid = inputStreamService.getUid(oneUserInputStream, mapper, "user", "_id");
+//        ArrayList<RocketChatUser> allUsers = inputStreamService.getListOfUsers(allUsersInputStream, mapper);
+//        Uid authUid = inputStreamService.getUid(authInputStream, mapper, "data", "userId");
+//        Uid createUid = inputStreamService.getUid(createInputStream, mapper, "user", "_id");
+//        Uid updateUid = inputStreamService.getUid(updateInputStream, mapper, "user", "_id");
+//        Uid oneUserUid = inputStreamService.getUid(oneUserInputStream, mapper, "user", "_id");
 
         inputStreamService.saveResultToFile(allUsersInputStream, "allUsers.json");
         inputStreamService.saveResultToFile(createInputStream, "create.json");
@@ -74,7 +73,8 @@ public class RocketChatRestClient implements CommandLineRunner {
     }
 
     private Response auth(WebClient client) {
-        client.replacePath("api/v1/login");
+        client.replacePath("api/v1/login")
+                .type(MediaType.APPLICATION_FORM_URLENCODED);
 
         Form form = new Form("user", "admin")
                 .param("password", "projectRSIAM2015");
@@ -83,7 +83,8 @@ public class RocketChatRestClient implements CommandLineRunner {
     }
 
     private Response create(WebClient client) {
-        client.replacePath("/api/v1/users.create");
+        client.replacePath("/api/v1/users.create")
+                .type(MediaType.APPLICATION_FORM_URLENCODED);
 
         Form form = new Form("name", "Igor")
                 .param("email", "igor@mail.ru")
@@ -93,33 +94,37 @@ public class RocketChatRestClient implements CommandLineRunner {
         return client.post(form);
     }
 
-    //Если после этого метода вызвать auth, то будет ошибка "No serializer found for class javax.ws.rs.core.Form" Problem with writing the data, class javax.ws.rs.core.Form, ContentType: application/json
-    // видимо нужно как то избавиться от client.type()
-    private Response delete(WebClient client, ObjectMapper mapper) {
-        client.replacePath("/api/v1/users.delete");
+    private Response delete(WebClient client) {
+        client.replacePath("/api/v1/users.delete")
+                .type(MediaType.APPLICATION_FORM_URLENCODED);
 
-        ObjectNode objectNode = mapper.createObjectNode();
-        objectNode.put("username", "IgorIgor");
-
-        return client.type(MediaType.APPLICATION_JSON).post(objectNode);
+        Form form = new Form("username", "IgorIgor");
+        return client.post(form);
     }
 
     private Response update(WebClient client, ObjectMapper mapper) {
         String passHash = DigestUtils.sha256Hex("projectRSIAM2015");
+        URI baseUri = client.getBaseURI();
 
-        client.replacePath("/api/v1/users.update")
+        JacksonJaxbJsonProvider jaxbProvider = new JacksonJaxbJsonProvider();
+        jaxbProvider.setMapper(mapper);
+
+        client = WebClient.create(baseUri.toString(), Collections.singletonList(jaxbProvider))
+                .header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
+                .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
                 .header("X-2fa-code", passHash)
                 .header("X-2fa-method", "password")
-                .type(MediaType.APPLICATION_JSON);
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .replacePath("/api/v1/users.update");
 
         // возможно проблемы с обновлением списка email, username, password
         ObjectNode childNode = mapper.createObjectNode();
-        childNode.put("name", "IgorIgor");
+        childNode.put("name", "Неизменный2");
 
         ObjectNode parentNode = mapper.createObjectNode();
-        parentNode.put("userId", "X5EuzoKqthim27vWn");
+        parentNode.put("userId", "7QYRqqRT9fyGEoZz7");
         parentNode.set("data", childNode);
 
-        return client.post(parentNode);
+        return client.post(parentNode);//{"userId":"7QYRqqRT9fyGEoZz7","data":{"name":"Неизменный2"}}
     }
 }
