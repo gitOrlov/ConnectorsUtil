@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.cxf.jaxrs.client.WebClient
-import org.identityconnectors.framework.common.objects.Uid
 
 import javax.ws.rs.core.Form
 
@@ -67,7 +67,6 @@ switch (objectClass) {
         } else if (response.getStatus() == 400) {
             //здесь надо сделать возврат Uid существующего пользователя если он правда создан
             log.error("Perhaps a user with this name has already been created!\n")
-            return "jKD6N4RAdbgk4Cxpi"
         } else {
             throw new RuntimeException("Could not create! status code =  " + response.getStatus() + "\n")
         }

@@ -51,8 +51,6 @@ log.info("Entering " + action + " Script");
 passHash = DigestUtils.sha256Hex("projectRSIAM2015")
 ObjectMapper mapper = new ObjectMapper()
 
-//baseUri = client.getBaseURI();
-
 client.header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
         .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
         .header("X-2fa-code", passHash)
@@ -66,8 +64,6 @@ switch (action) {
     case "UPDATE":
         switch (objectClass) {
             case "__ACCOUNT__":
-                childNode = mapper.createObjectNode()
-
                 def dataMap = new HashMap();
 
                 Iterator it = attributes.entrySet().iterator()
@@ -97,7 +93,7 @@ switch (action) {
                     JsonNode node = mapper.readTree((InputStream) response.getEntity())
                     return node.get("user").get("_id").textValue()
                 } else if (response.getStatus() == 400) {
-                    log.error("Perhaps a user with this name has already been created!\n")
+                    log.error("Error when updating user with uid = " + stringUid)
                 }
             default:
                 break

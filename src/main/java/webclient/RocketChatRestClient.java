@@ -1,8 +1,7 @@
 package webclient;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +13,7 @@ import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
-import java.net.URI;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @SpringBootApplication
@@ -102,29 +100,30 @@ public class RocketChatRestClient implements CommandLineRunner {
         return client.post(form);
     }
 
-    private Response update(WebClient client, ObjectMapper mapper) {
+    private Response update(WebClient client, ObjectMapper mapper) throws JsonProcessingException {
         String passHash = DigestUtils.sha256Hex("projectRSIAM2015");
-        URI baseUri = client.getBaseURI();
 
-        JacksonJaxbJsonProvider jaxbProvider = new JacksonJaxbJsonProvider();
-        jaxbProvider.setMapper(mapper);
-
-        client = WebClient.create(baseUri.toString(), Collections.singletonList(jaxbProvider))
-                .header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
+        client.header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
                 .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
                 .header("X-2fa-code", passHash)
                 .header("X-2fa-method", "password")
                 .type(MediaType.APPLICATION_JSON_TYPE)
                 .replacePath("/api/v1/users.update");
 
-        // возможно проблемы с обновлением списка email, username, password
-        ObjectNode childNode = mapper.createObjectNode();
-        childNode.put("name", "Неизменный2");
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("name", "Неизменный2");
+        dataMap.put("username", "change2");
+        dataMap.put("password", "password");
+        dataMap.put("roles", new String[]{"owner"});
 
-        ObjectNode parentNode = mapper.createObjectNode();
-        parentNode.put("userId", "7QYRqqRT9fyGEoZz7");
-        parentNode.set("data", childNode);
+        Map<String, Object> parentMap = new HashMap<>();
+        parentMap.put("userId", "7QYRqqRT9fyGEoZz7");
+        parentMap.put("data", dataMap);
 
-        return client.post(parentNode);//{"userId":"7QYRqqRT9fyGEoZz7","data":{"name":"Неизменный2"}}
+        String jsonResult = mapper.writeValueAsString(parentMap);
+
+        System.out.println("jsonResult = " + jsonResult);
+
+        return client.post(jsonResult);
     }
 }

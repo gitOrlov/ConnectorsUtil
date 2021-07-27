@@ -100,14 +100,14 @@ public class ConnectorServerUtil implements CommandLineRunner {
         restConnectorProperties.setPropertyValue("searchScriptFileName", path + "SearchScript.groovy");
         restConnectorProperties.setPropertyValue("updateScriptFileName", path + "UpdateScript.groovy");
 
-//        restConnectorProperties.setPropertyValue("cliendId", "ANrfMv9N4B7dHJGcg"); // эти параметры вообще не передаются!
-//        restConnectorProperties.setPropertyValue("clientSecret", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ");
+        restConnectorProperties.setPropertyValue("cliendId", "ANrfMv9N4B7dHJGcg"); // эти параметры вообще не передаются!
+        restConnectorProperties.setPropertyValue("clientSecret", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ");
 
 //        restConnectorProperties.setPropertyValue("contentType", "application/x-www-form-urlencoded");// почему то устанавливает заголовок Accept!
 //        restConnectorProperties.setPropertyValue("accept", "application/x-www-form-urlencoded");// почему то устанавливает заголовок contentType!
 
-//        restConnectorProperties.setPropertyValue("username", "admin");
-//        restConnectorProperties.setPropertyValue("password", new GuardedString("projectRSIAM2015".toCharArray()));
+        restConnectorProperties.setPropertyValue("username", "admin");
+        restConnectorProperties.setPropertyValue("password", new GuardedString("projectRSIAM2015".toCharArray()));
 
 //        restConnectorProperties.setPropertyValue("testScriptFileName", path + "TestScript.groovy");
 //        restConnectorProperties.setPropertyValue("syncScriptFileName", "");
