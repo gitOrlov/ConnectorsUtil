@@ -29,13 +29,13 @@ import org.identityconnectors.framework.common.objects.ObjectClassInfoBuilder
 // The connector will make the final call to builder.build()
 // so the scipt just need to declare the different object types.
 
-log.info("Entering " + action + " Script");
+log.info("Entering " + action + " Script")
 
-idAIB = new AttributeInfoBuilder("key", String.class);
-idAIB.setRequired(true);
+idAIB = new AttributeInfoBuilder("key", String.class)
+idAIB.setRequired(true)
 
-orgAttrsInfo = new HashSet<AttributeInfo>();
-orgAttrsInfo.add(idAIB.build());
+orgAttrsInfo = new HashSet<AttributeInfo>()
+orgAttrsInfo.add(idAIB.build())
 orgAttrsInfo.add(AttributeInfoBuilder.build("_id", String.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("createdAt", String.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("username", String.class))
@@ -45,11 +45,11 @@ orgAttrsInfo.add(AttributeInfoBuilder.build("status", String.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("active", Boolean.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("_updatedAt", Boolean.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("__rooms", Map.class))
-//orgAttrsInfo.add(AttributeInfoBuilder.build("roles", Map.class))
+orgAttrsInfo.add(AttributeInfoBuilder.build("roles", Map.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("name", String.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("settings", Map.class))
 
-ObjectClassInfo oci = new ObjectClassInfoBuilder().setType("__ACCOUNT__").addAllAttributeInfo(orgAttrsInfo).build();
+ObjectClassInfo oci = new ObjectClassInfoBuilder().setType("__ACCOUNT__").addAllAttributeInfo(orgAttrsInfo).build()
 builder.defineObjectClass(oci)
 
-log.info(action + " script done");
+log.info(action + " script done")

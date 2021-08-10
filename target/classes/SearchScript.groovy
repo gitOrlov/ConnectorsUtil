@@ -51,7 +51,7 @@ import javax.ws.rs.core.Response
 def buildConnectorObject(node) {
 
     print("Node" + node.toPrettyString())
-    println ("node roles 0 = " + node.get("roles").get(0))
+
     return [
             __UID__         : node.get("_id").textValue(),
             __NAME__        : node.get("_id").textValue(),
@@ -66,12 +66,12 @@ def buildConnectorObject(node) {
             statusConnection: node.get("statusConnection").textValue(),
             utcOffset       : node.get("utcOffset").intValue(),
             roles           : node.get("roles").get(0).textValue()
-    ];
+    ]
 }
 
-log.info("Entering " + action + " Script");
+log.info("Entering " + action + " Script")
 
-ObjectMapper mapper = new ObjectMapper();
+ObjectMapper mapper = new ObjectMapper()
 
 def result = []
 
@@ -123,7 +123,7 @@ switch (objectClass) {
         break
 
     default:
-        result;
+        result
 }
 
-return result;
+return result

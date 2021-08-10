@@ -26,9 +26,9 @@ import javax.ws.rs.core.Form
 // options: a handler to the OperationOptions Map
 // uid: String for the unique id that specifies the object to delete
 
-log.info("Entering " + action + " Script");
+log.info("Entering " + action + " Script")
 
-WebClient webClient = client;
+WebClient webClient = client
 
 assert uid != null
 
@@ -38,7 +38,7 @@ switch (objectClass) {
                 .type("application/x-www-form-urlencoded")
 
         Form form = new Form("userId", uid)
-        webClient.post(form);
+        webClient.post(form)
         break
 
     default:
