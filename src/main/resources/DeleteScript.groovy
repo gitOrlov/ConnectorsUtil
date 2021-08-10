@@ -26,9 +26,9 @@ import javax.ws.rs.core.Form
 // options: a handler to the OperationOptions Map
 // uid: String for the unique id that specifies the object to delete
 
-log.info("Entering " + action + " Script");
+log.info("Entering " + action + " Script")
 
-WebClient webClient = client;
+WebClient webClient = client
 
 assert uid != null
 
@@ -36,13 +36,11 @@ switch (objectClass) {
     case "__ACCOUNT__":
         webClient.replacePath("/api/v1/users.delete")
                 .type("application/x-www-form-urlencoded")
-                .header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
-                .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
 
         Form form = new Form("userId", uid)
-        webClient.post(form);
+        webClient.post(form)
         break
 
     default:
-        break
+        throw new RuntimeException("Could not delete!")
 }

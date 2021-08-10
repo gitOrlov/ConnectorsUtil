@@ -10,8 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import pack.connection.ConnectorInfoManagerService;
 import pack.info.ConnectorInfoService;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Objects.isNull;
 
@@ -36,9 +35,9 @@ public class ConnectorServerUtil implements CommandLineRunner {
     }
 
     private void workWithRestConnector(ConnectorInfoManager connectorInfoManager) {
-        String restConnectorBundleName = "net.tirasa.connid.bundles.rest";
-        String restConnectorBundleVersion = "1.0.6-SNAPSHOT";
-        String restConnectorName = "net.tirasa.connid.bundles.rest.RESTConnector";
+        String restConnectorBundleName = "ConnIdRESTConnector";
+        String restConnectorBundleVersion = "1.0-SNAPSHOT";
+        String restConnectorName = "ru.rtiam.connectors.rest.RESTConnector";
         ConnectorKey restConnectorKey = new ConnectorKey(restConnectorBundleName, restConnectorBundleVersion, restConnectorName);
 
         ConnectorInfo restConnectorInfo = connectorInfoManager.findConnectorInfo(restConnectorKey);
@@ -51,9 +50,12 @@ public class ConnectorServerUtil implements CommandLineRunner {
         OperationOptions operationOptions = new OperationOptionsBuilder().build();
 
         connectorFacade.validate();
+
         Schema schema = connectorFacade.schema();
 
-        Uid uid = connectorFacade.authenticate(ObjectClass.ACCOUNT, "admin", new GuardedString("projectRSIAM2015".toCharArray()), operationOptions);
+        connectorFacade.test();
+
+        ConnectorObject user = connectorFacade.getObject(ObjectClass.ACCOUNT, new Uid("jGPfuzGRTevZSp4Ce"), operationOptions);
 
         Uid createUid = create(connectorFacade, operationOptions);
 
@@ -61,11 +63,11 @@ public class ConnectorServerUtil implements CommandLineRunner {
 
         connectorFacade.delete(ObjectClass.ACCOUNT, createUid, operationOptions);
 
-        ConnectorObject user = connectorFacade.getObject(ObjectClass.ACCOUNT, new Uid("jGPfuzGRTevZSp4Ce"), operationOptions);
-
-//        connectorFacade.test();
-
-//        SearchResult searchResult = connectorFacade.search(ObjectClass.ACCOUNT, filter, resultsHandler, operationOptions);
+//        SearchHandler handler = handler = new SearchHandler();
+//        Filter filter = FilterBuilder.equalTo(AttributeBuilder.build("".split("=")[0].trim(), "".split("=")[1].trim()));
+//
+//        SearchResult searchResult = connectorFacade.search(ObjectClass.ACCOUNT, filter, handler, operationOptions);
+//        List<ConnectorObject> connectorObjects = handler.getAllResult();
 
 //        connectorFacade.sync();
     }
@@ -77,6 +79,7 @@ public class ConnectorServerUtil implements CommandLineRunner {
         attributes.add(AttributeBuilder.build("email", "Vania@mail.ru"));
         attributes.add(AttributeBuilder.build("password", "Vania"));
         attributes.add(AttributeBuilder.build("username", "VaniaVania"));
+        attributes.add(AttributeBuilder.build("roles", new String[]{"owner"}));
 
         return connectorFacade.create(ObjectClass.ACCOUNT, attributes, operationOptions);
     }
@@ -89,7 +92,7 @@ public class ConnectorServerUtil implements CommandLineRunner {
     }
 
     void setConnectorProperties(ConfigurationProperties restConnectorProperties) {
-        String path = "/opt/connid-connector-server/scripts/";
+        String path = "/opt/connid-connector-server-1.5.1.0/scripts/";
         restConnectorProperties.setPropertyValue("baseAddress", "http://10.0.14.54:3000");
         restConnectorProperties.setPropertyValue("reloadScriptOnExecution", true);
 
@@ -99,12 +102,7 @@ public class ConnectorServerUtil implements CommandLineRunner {
         restConnectorProperties.setPropertyValue("deleteScriptFileName", path + "DeleteScript.groovy");
         restConnectorProperties.setPropertyValue("searchScriptFileName", path + "SearchScript.groovy");
         restConnectorProperties.setPropertyValue("updateScriptFileName", path + "UpdateScript.groovy");
-
-        restConnectorProperties.setPropertyValue("cliendId", "ANrfMv9N4B7dHJGcg"); // эти параметры вообще не передаются!
-        restConnectorProperties.setPropertyValue("clientSecret", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ");
-
-//        restConnectorProperties.setPropertyValue("contentType", "application/x-www-form-urlencoded");// почему то устанавливает заголовок Accept!
-//        restConnectorProperties.setPropertyValue("accept", "application/x-www-form-urlencoded");// почему то устанавливает заголовок contentType!
+        restConnectorProperties.setPropertyValue("initScriptFileName", path + "InitScript.groovy");
 
         restConnectorProperties.setPropertyValue("username", "admin");
         restConnectorProperties.setPropertyValue("password", new GuardedString("projectRSIAM2015".toCharArray()));
@@ -113,15 +111,6 @@ public class ConnectorServerUtil implements CommandLineRunner {
 //        restConnectorProperties.setPropertyValue("syncScriptFileName", "");
 //        restConnectorProperties.setPropertyValue("resolveUsernameScriptFileName", "");
 
-//        restConnectorProperties.setPropertyValue("schemaScript", "SchemaScript");
-//        restConnectorProperties.setPropertyValue("testScript", "");
-//        restConnectorProperties.setPropertyValue("syncScript", "");
-//        restConnectorProperties.setPropertyValue("resolveUsernameScript", "");
-//        restConnectorProperties.setPropertyValue("authenticateScript", "");
-//        restConnectorProperties.setPropertyValue("searchScript", "");
-//        restConnectorProperties.setPropertyValue("deleteScript", "");
-//        restConnectorProperties.setPropertyValue("updateScript", "");
-//        restConnectorProperties.setPropertyValue("createScript", "");
     }
 //    private void printAllConnectorInfos(ConnectorInfoManager connectorInfoManager) {
 //        List<ConnectorInfo> connectorInfos = connectorInfoManager.getConnectorInfos();
@@ -139,5 +128,31 @@ public class ConnectorServerUtil implements CommandLineRunner {
 //            connectorInfoService.printObjectInfo(apiConfig);
 //        }
 //    }
+
+    public class SearchHandler implements ResultsHandler {
+
+        private final List<ConnectorObject> validData = new ArrayList<>();
+        private final Map<ConnectorObject, String> failedData = new HashMap<>();
+
+        public List<ConnectorObject> getAllResult() {
+            return validData;
+        }
+
+        public Map<ConnectorObject, String> getFailedResults() {
+            return failedData;
+        }
+
+        protected void failed(ConnectorObject obj, String cause) {
+            failedData.put(obj, cause);
+        }
+
+        @Override
+        public boolean handle(ConnectorObject connectorObject) {
+            if (connectorObject != null) {
+                validData.add(connectorObject);
+            }
+            return true;
+        }
+    }
 }
 

@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2016 ConnId (connid-dev@googlegroups.com)
  *
@@ -46,14 +47,12 @@ import javax.ws.rs.core.MediaType
 //
 // options: a handler to the OperationOptions Map
 
-log.info("Entering " + action + " Script");
+log.info("Entering " + action + " Script")
 
 passHash = DigestUtils.sha256Hex("projectRSIAM2015")
 ObjectMapper mapper = new ObjectMapper()
 
-client.header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
-        .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
-        .header("X-2fa-code", passHash)
+client.header("X-2fa-code", passHash)
         .header("X-2fa-method", "password")
         .type(MediaType.APPLICATION_JSON_TYPE)
         .replacePath("/api/v1/users.update")
@@ -64,7 +63,7 @@ switch (action) {
     case "UPDATE":
         switch (objectClass) {
             case "__ACCOUNT__":
-                def dataMap = new HashMap();
+                def dataMap = new HashMap()
 
                 Iterator it = attributes.entrySet().iterator()
                 while (it.hasNext()) {
@@ -84,7 +83,7 @@ switch (action) {
                 def parentmap = [userId: stringUid, "data": dataMap]
 
                 String jsonResult = mapper.writerWithDefaultPrettyPrinter()
-                        .writeValueAsString(parentmap);
+                        .writeValueAsString(parentmap)
 
                 println "json= " + jsonResult
                 response = client.post(jsonResult)
@@ -99,7 +98,7 @@ switch (action) {
                 break
         }
 
-        return uid;
+        return uid
         break
 
     case "ADD_ATTRIBUTE_VALUES":

@@ -18,7 +18,6 @@
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
-import org.apache.cxf.jaxrs.client.WebClient
 import org.apache.cxf.jaxrs.ext.search.ConditionType
 
 import javax.ws.rs.core.Response
@@ -50,6 +49,9 @@ import javax.ws.rs.core.Response
 // This is required to build a ConnectorObject.
 
 def buildConnectorObject(node) {
+
+    print("Node" + node.toPrettyString())
+    println ("node roles 0 = " + node.get("roles").get(0))
     return [
             __UID__         : node.get("_id").textValue(),
             __NAME__        : node.get("_id").textValue(),
@@ -62,21 +64,16 @@ def buildConnectorObject(node) {
             active          : node.get("active").booleanValue(),
             lastLogin       : node.get("lastLogin").textValue(),
             statusConnection: node.get("statusConnection").textValue(),
-            utcOffset       : node.get("utcOffset").intValue()
+            utcOffset       : node.get("utcOffset").intValue(),
+            roles           : node.get("roles").get(0).textValue()
     ];
 }
 
 log.info("Entering " + action + " Script");
 
-WebClient webClient = client;
 ObjectMapper mapper = new ObjectMapper();
-webClient.getCurrentURI()
 
 def result = []
-
-
-webClient.header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
-        .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
 
 switch (objectClass) {
     case "__ACCOUNT__":
@@ -84,12 +81,12 @@ switch (objectClass) {
 
         //Пока что здесь получение только одного пользотвателя, надо в зависимости от параметров запроса сделать получение или одного или всех пользователей
         if (query.get("left").equals("__UID__") && query.get("conditionType").equals(ConditionType.EQUALS)) {
-            webClient.replacePath("/api/v1/users.info")
+            client.replacePath("/api/v1/users.info")
 
             String right = (String) query.get("right")
             log.info("right=" + right)
 
-            Response oneUserResponse = webClient.query("userId", right).get()
+            Response oneUserResponse = client.query("userId", right).get()
 
             log.info("Response code=" + oneUserResponse.getStatus())
 
@@ -103,8 +100,8 @@ switch (objectClass) {
         }
 
 //  if (query == null || (!query.get("left").equals("__UID__") && !query.get("conditionType").equals("EQUALS"))) {
-//    webClient.path("/users");
-//    Response response = webClient.get();
+//    client.path("/users");
+//    Response response = client.get();
 //    ArrayNode node = mapper.readTree(response.getEntity());
 //
 //    println node;
@@ -112,8 +109,8 @@ switch (objectClass) {
 //      result.add(buildConnectorObject(node.get(i)));
 //    }
 //  } else {
-//    webClient.path("/users/" + query.get("right"));
-//    Response response = webClient.get();
+//    client.path("/users/" + query.get("right"));
+//    Response response = client.get();
 //    if (response.getStatus() == 200) {
 //      ObjectNode node = mapper.readTree(response.getEntity());
 //      println node;

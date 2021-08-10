@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2016 ConnId (connid-dev@googlegroups.com)
  *
@@ -44,7 +45,7 @@ orgAttrsInfo.add(AttributeInfoBuilder.build("status", String.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("active", Boolean.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("_updatedAt", Boolean.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("__rooms", Map.class))
-orgAttrsInfo.add(AttributeInfoBuilder.build("roles", Map.class))
+//orgAttrsInfo.add(AttributeInfoBuilder.build("roles", Map.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("name", String.class))
 orgAttrsInfo.add(AttributeInfoBuilder.build("settings", Map.class))
 

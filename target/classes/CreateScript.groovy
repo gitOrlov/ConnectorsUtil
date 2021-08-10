@@ -1,3 +1,6 @@
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+
 /**
  * Copyright (C) 2016 ConnId (connid-dev@googlegroups.com)
  *
@@ -13,14 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import org.apache.cxf.jaxrs.client.WebClient
-
-import javax.ws.rs.core.Form
-
 // Parameters:
 // The connector sends us the following:
 // client : CXF WebClient
@@ -33,19 +28,16 @@ import javax.ws.rs.core.Form
 // password: password string, clear text
 // options: a handler to the OperationOptions Map
 
-log.info("Entering " + action + " Script\n");
+log.info("Entering " + action + " Script\n")
 
-WebClient webClient = client
-ObjectMapper mapper = new ObjectMapper()
+println("current URI = " + client.getCurrentURI())
 
 switch (objectClass) {
     case "__ACCOUNT__":
-        webClient.replacePath("api/v1/users.create")
-                .type("application/x-www-form-urlencoded")
-                .header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
-                .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
+        client.replacePath("/api/v1/users.create")
+                .type("application/json")
 
-        Form form = new Form()
+        Map<String, Object> dataMap = new HashMap<>()
 
         Iterator it = attributes.entrySet().iterator()
         while (it.hasNext()) {
@@ -55,11 +47,26 @@ switch (objectClass) {
             value = (String) me.getValue()
             value = value.substring(1, value.length() - 1)
 
-            log.info("key=" + entryKey + " val=" + value)
-            form.param(entryKey, value)
+            if (entryKey == "roles") {
+                String[] arrayOfString = new String[1]
+                arrayOfString[0] = value
+
+                log.info("key=" + entryKey + " val=" + value)
+                dataMap.put(entryKey, arrayOfString)
+
+            } else {
+                log.info("key=" + entryKey + " val=" + value)
+                dataMap.put(entryKey, value)
+            }
         }
 
-        response = webClient.post(form)
+        ObjectMapper mapper = new ObjectMapper()
+        String jsonResult = mapper.writeValueAsString(dataMap)
+        println("jsonResult = " + jsonResult)
+
+        response = client.post(jsonResult)
+
+        println("response status = " + response.getStatus())
 
         if (response.getStatus() == 200) {
             JsonNode node = mapper.readTree((InputStream) response.getEntity())
@@ -75,5 +82,4 @@ switch (objectClass) {
     default:
         throw new RuntimeException()
 }
-
 return null

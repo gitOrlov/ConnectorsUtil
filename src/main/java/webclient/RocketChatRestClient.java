@@ -47,7 +47,7 @@ public class RocketChatRestClient implements CommandLineRunner {
         Response getAllUsersResponse = client.replacePath("/api/v1/users.list").get();
         InputStream allUsersInputStream = (InputStream) getAllUsersResponse.getEntity();
 
-        Response createResponse = create(client);
+        Response createResponse = create(client, mapper);
         InputStream createInputStream = (InputStream) createResponse.getEntity();
 
         Response updateResponse = update(client, mapper);
@@ -80,16 +80,21 @@ public class RocketChatRestClient implements CommandLineRunner {
         return client.post(form);
     }
 
-    private Response create(WebClient client) {
+    private Response create(WebClient client, ObjectMapper mapper) throws JsonProcessingException {
         client.replacePath("/api/v1/users.create")
-                .type(MediaType.APPLICATION_FORM_URLENCODED);
+                .type(MediaType.APPLICATION_JSON_TYPE);
 
-        Form form = new Form("name", "Igor")
-                .param("email", "igor@mail.ru")
-                .param("password", "Igor")
-                .param("username", "IgorIgor");
+        Map<String, Object> dataMap = new HashMap<>();
+        dataMap.put("email", "igor@mail.ru");
+        dataMap.put("name", "Igor");
+        dataMap.put("password", "Igor");
+        dataMap.put("username", "IgorIgor");
+        dataMap.put("roles", new String[]{"owner"});
 
-        return client.post(form);
+        String jsonResult = mapper.writeValueAsString(dataMap);
+        System.out.println("jsonResult = " + jsonResult);
+
+        return client.post(jsonResult);
     }
 
     private Response delete(WebClient client) {
@@ -115,6 +120,11 @@ public class RocketChatRestClient implements CommandLineRunner {
         dataMap.put("username", "change2");
         dataMap.put("password", "password");
         dataMap.put("roles", new String[]{"owner"});
+
+        Map<String, Object> emails = new HashMap<>();
+        emails.put("address", "newemail@mail.ru");
+        emails.put("verified", false);
+        dataMap.put("emails", new Map[]{emails});
 
         Map<String, Object> parentMap = new HashMap<>();
         parentMap.put("userId", "7QYRqqRT9fyGEoZz7");

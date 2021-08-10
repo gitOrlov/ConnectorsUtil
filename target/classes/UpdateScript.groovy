@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2016 ConnId (connid-dev@googlegroups.com)
  *
@@ -51,9 +52,7 @@ log.info("Entering " + action + " Script");
 passHash = DigestUtils.sha256Hex("projectRSIAM2015")
 ObjectMapper mapper = new ObjectMapper()
 
-client.header("X-Auth-Token", "WmmXhiyxZYEb0P4jfNC4m4b7Ff4KPwiIZM9ELl06cgZ")
-        .header("X-User-Id", "ANrfMv9N4B7dHJGcg")
-        .header("X-2fa-code", passHash)
+client.header("X-2fa-code", passHash)
         .header("X-2fa-method", "password")
         .type(MediaType.APPLICATION_JSON_TYPE)
         .replacePath("/api/v1/users.update")
